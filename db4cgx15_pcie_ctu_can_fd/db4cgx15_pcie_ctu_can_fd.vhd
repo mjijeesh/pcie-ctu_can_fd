@@ -1,20 +1,51 @@
--- Copyright (C) 2017  Intel Corporation. All rights reserved.
--- Your use of Intel Corporation's design tools, logic functions 
--- and other software and tools, and its AMPP partner logic 
--- functions, and any output files from any of the foregoing 
--- (including device programming or simulation files), and any 
--- associated documentation or information are expressly subject 
--- to the terms and conditions of the Intel Program License 
--- Subscription Agreement, the Intel Quartus Prime License Agreement,
--- the Intel MegaCore Function License Agreement, or other 
--- applicable license agreement, including, without limitation, 
--- that your use is for the sole purpose of programming logic 
--- devices manufactured by Intel and sold by Intel or its 
--- authorized distributors.  Please refer to the applicable 
--- agreement for further details.
+--------------------------------------------------------------------------------
+-- 
+-- CTU CAN FD IP Core
+-- Copyright (C) 2015-2018
+-- 
+-- Authors:
+--     Ondrej Ille <ondrej.ille@gmail.com>
+--     Martin Jerabek <martin.jerabek01@gmail.com>
+--     Pavel Pisa <pisa@cmp.felk.cvut.cz>
+-- 
+-- Project advisors: 
+-- 	Jiri Novak <jnovak@fel.cvut.cz>
+-- 	Pavel Pisa <pisa@cmp.felk.cvut.cz>
+-- 
+-- Department of Measurement         (http://meas.fel.cvut.cz/)
+-- Faculty of Electrical Engineering (http://www.fel.cvut.cz)
+-- Czech Technical University        (http://www.cvut.cz/)
+-- 
+-- Permission is hereby granted, free of charge, to any person obtaining a copy
+-- of this VHDL component and associated documentation files (the "Component"),
+-- to deal in the Component without restriction, including without limitation
+-- the rights to use, copy, modify, merge, publish, distribute, sublicense,
+-- and/or sell copies of the Component, and to permit persons to whom the
+-- Component is furnished to do so, subject to the following conditions:
+-- 
+-- The above copyright notice and this permission notice shall be included in
+-- all copies or substantial portions of the Component.
+-- 
+-- THE COMPONENT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-- AUTHORS OR COPYRIGHTHOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+-- FROM, OUT OF OR IN CONNECTION WITH THE COMPONENT OR THE USE OR OTHER DEALINGS
+-- IN THE COMPONENT.
+-- 
+-- The CAN protocol is developed by Robert Bosch GmbH and protected by patents.
+-- Anybody who wants to implement this IP core on silicon has to obtain a CAN
+-- protocol license from Bosch.
+-- 
+--------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use work.CANconstants.all;
+use work.CANcomponents.all;
+
 library altera;
 use altera.altera_syn_attributes.all;
 
@@ -31,7 +62,11 @@ entity db4cgx15_pcie_ctu_can_fd is
         pcie_ref_clk : in  std_logic;
         pcie_reset_n : in  std_logic;
         reset_n : in  std_logic;
-        pcie_wake : in  std_logic
+        pcie_wake : in  std_logic;
+
+        can_rx : in std_logic;
+        can_tx : out std_logic
+
 	);
 
 -- {ALTERA_ATTRIBUTE_BEGIN} DO NOT REMOVE THIS LINE!
@@ -84,10 +119,22 @@ architecture ppl_type of db4cgx15_pcie_ctu_can_fd is
 			pcie_hard_ip_0_test_out_test_out                        : out std_logic_vector(8 downto 0);                     -- test_out
 
          clk_50_clk                                              : out std_logic;
-         pcie_core_clk_clk                                       : out std_logic 
+         pcie_core_clk_clk                                       : out std_logic
 	);
 	end component pcie_core;
 
+   signal reg_data_in      : std_logic_vector(31 downto 0);
+   signal reg_data_out     : std_logic_vector(31 downto 0);
+   signal reg_addr         : std_logic_vector(COMP_TYPE_ADRESS_HIGHER downto 0);
+   signal reg_be           : std_logic_vector(3 downto 0);
+   signal reg_rden         : std_logic;
+   signal reg_wren         : std_logic;
+	signal timestamp        : std_logic_vector(63 downto 0);
+   signal clk_sys          : std_logic;
+   signal irq              : std_logic;
+   signal bus_rw           : std_logic;
+   signal bus_en           : std_logic;
+   signal bus_addr         : std_logic_vector(15 downto 0);
 
 -- {ALTERA_COMPONENTS_BEGIN} DO NOT REMOVE THIS LINE!
 -- {ALTERA_COMPONENTS_END} DO NOT REMOVE THIS LINE!
@@ -99,7 +146,7 @@ begin
 		port map (
 			clk_25_clk                                              => clk25b,			-- clk_25.clk
 			reset_n_reset_n                                         => reset_n,       --  reset.reset_n
-			
+
 			pcie_hard_ip_0_refclk_export                            => pcie_ref_clk,   -- pcie_hard_ip_0_refclk.export
 			pcie_hard_ip_0_rx_in_rx_datain_0                        => pcie_rx0,       -- pcie_hard_ip_0_rx_in.rx_datain_0
 			pcie_hard_ip_0_tx_out_tx_dataout_0                      => pcie_tx0,       -- pcie_hard_ip_0_tx_out.tx_dataout_0
@@ -107,17 +154,75 @@ begin
 
 			pcie_hard_ip_0_reconfig_busy_busy_altgxb_reconfig       => open,          --  pcie_hard_ip_0_reconfig_busy.busy_altgxb_reconfig
 			external_bus_interface_acknowledge => '1',           -- external_bus_interface.acknowledge
-			external_bus_interface_irq         => '0',           -- .irq
-			external_bus_interface_address     => open,          -- .address
-			external_bus_interface_bus_enable  => open,          -- .bus_enable
-			external_bus_interface_byte_enable => open,          -- .byte_enable
-			external_bus_interface_rw          => open,          -- .rw
-			external_bus_interface_write_data  => open,          -- .write_data
-			external_bus_interface_read_data   => x"12345678",   -- .read_data
+			external_bus_interface_irq         => irq,           -- .irq
+			external_bus_interface_address     => bus_addr,      -- .address
+			external_bus_interface_bus_enable  => bus_en,        -- .bus_enable
+			external_bus_interface_byte_enable => reg_be,        -- .byte_enable
+			external_bus_interface_rw          => bus_rw ,       -- .rw
+			external_bus_interface_write_data  => reg_data_in,   -- .write_data
+			external_bus_interface_read_data   => reg_data_out,  -- .read_data
 
 			clk_50_clk                         => open,
-			pcie_core_clk_clk                  => open
+			pcie_core_clk_clk                  => clk_sys
 		);
 
-		
+   can_fd_inst : CAN_top_level
+        generic map (
+            use_logger      => true,
+            rx_buffer_size  => 64,
+            use_sync        => true,
+            sup_filtA       => true,
+            sup_filtB       => true,
+            sup_filtC       => true,
+            sup_range       => true,
+            logger_size     => 32
+        )
+        port map (
+            clk_sys         => clk_sys,
+            res_n           => reset_n,
+
+            data_in         => reg_data_in,
+            data_out        => reg_data_out,
+            adress          => reg_addr,
+            scs             => '1',
+            srd             => reg_rden,
+            swr             => reg_wren,
+            sbe             => reg_be,
+
+            int             => irq,
+
+            CAN_tx          => can_tx,
+            CAN_rx          => can_rx,
+
+            time_quanta_clk => open,
+            timestamp       => timestamp
+        );
+
+	 timestamp_counter : process (reset_n, clk_sys)
+    begin
+        if (reset_n = '0') then
+             timestamp <= (OTHERS => '0');
+        elsif (rising_edge(clk_sys)) then
+		       timestamp <= std_logic_vector(to_unsigned(
+				                   (to_integer(unsigned(timestamp)) + 1),
+								    timestamp'length));
+        end if;
+    end process;
+
+    reg_rden <= bus_en and bus_rw;
+    reg_wren <= bus_en and not bus_rw;
+
+    reg_addr(COMP_TYPE_ADRESS_HIGHER downto COMP_TYPE_ADRESS_LOWER) <=
+        CAN_COMPONENT_TYPE;
+
+    reg_addr(ID_ADRESS_HIGHER downto ID_ADRESS_LOWER) <=
+        std_logic_vector(to_unsigned(1, 4));
+
+    -- forward only aligned addresses
+    -- (the bridge/CPU will then pick the bytes itself)
+    reg_addr(ID_ADRESS_LOWER - 1 downto 2) <=
+        bus_addr(ID_ADRESS_LOWER - 1 downto 2);
+
+    reg_addr(1 downto 0) <= (others => '0');
+
 end;

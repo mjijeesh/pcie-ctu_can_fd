@@ -405,7 +405,7 @@
   <parameter name="completion_timeout" value="NONE" />
   <parameter name="credit_buffer_allocation_aux" value="ABSOLUTE" />
   <parameter name="deviceFamily" value="Cyclone IV GX" />
-  <parameter name="device_id" value="52385" />
+  <parameter name="device_id" value="51965" />
   <parameter name="diffclock_nfts_count" value="255" />
   <parameter name="dll_active_report_support" value="false" />
   <parameter name="eie_before_nfts_count" value="4" />
@@ -459,7 +459,7 @@
   <parameter name="slot_number" value="0" />
   <parameter name="slot_power_limit" value="0" />
   <parameter name="slot_power_scale" value="0" />
-  <parameter name="subsystem_device_id" value="52385" />
+  <parameter name="subsystem_device_id" value="51965" />
   <parameter name="subsystem_vendor_id" value="4466" />
   <parameter name="surprise_down_error_support" value="false" />
   <parameter name="under_test" value="0" />
