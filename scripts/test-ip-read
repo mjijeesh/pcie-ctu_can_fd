@@ -1,0 +1,15 @@
+#!/bin/sh
+
+pci_dev="$(lspci -n -d 1172: | sed -e 's/\([0-9:]\+\) .*$/\1/')"
+if [ -z "$pci_dev" ] ; then
+  echo "PCI device not found"
+  exit 1
+fi
+echo "pci_dev=$pci_dev"
+pci_dev_dir="$(find /sys/devices/ -name "*$pci_dev" | sed -n -e "s/\(\/sys\/devices\/pci.*\/[0:]*$pci_dev\)/\1/p" )"
+echo "pci_dev_dir=$pci_dev_dir"
+set +x
+echo 1 >"$pci_dev_dir"/remove
+echo 1 > /sys/bus/pci/rescan
+lspci -nn -v -s "$pci_dev"
+echo 1 >"$pci_dev_dir"/enable
