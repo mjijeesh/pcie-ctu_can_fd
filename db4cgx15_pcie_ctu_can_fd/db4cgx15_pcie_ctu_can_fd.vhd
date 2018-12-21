@@ -135,6 +135,7 @@ architecture ppl_type of db4cgx15_pcie_ctu_can_fd is
    signal bus_rw           : std_logic;
    signal bus_en           : std_logic;
    signal bus_addr         : std_logic_vector(15 downto 0);
+   signal bus_ack          : std_logic;
 
 -- {ALTERA_COMPONENTS_BEGIN} DO NOT REMOVE THIS LINE!
 -- {ALTERA_COMPONENTS_END} DO NOT REMOVE THIS LINE!
@@ -153,7 +154,7 @@ begin
 			pcie_hard_ip_0_pcie_rstn_export                         => pcie_reset_n,   -- pcie_hard_ip_0_pcie_rstn.export
 
 			pcie_hard_ip_0_reconfig_busy_busy_altgxb_reconfig       => open,          --  pcie_hard_ip_0_reconfig_busy.busy_altgxb_reconfig
-			external_bus_interface_acknowledge => '1',           -- external_bus_interface.acknowledge
+			external_bus_interface_acknowledge => bus_ack,       -- external_bus_interface.acknowledge
 			external_bus_interface_irq         => irq,           -- .irq
 			external_bus_interface_address     => bus_addr,      -- .address
 			external_bus_interface_bus_enable  => bus_en,        -- .bus_enable
@@ -184,7 +185,7 @@ begin
             data_in         => reg_data_in,
             data_out        => reg_data_out,
             adress          => reg_addr,
-            scs             => '1',
+            scs             => bus_en,
             srd             => reg_rden,
             swr             => reg_wren,
             sbe             => reg_be,
@@ -197,6 +198,15 @@ begin
             time_quanta_clk => open,
             timestamp       => timestamp
         );
+
+	 ack_delay : process (reset_n, clk_sys)
+    begin
+        if (reset_n = '0') then
+             bus_ack <= '0';
+        elsif (rising_edge(clk_sys)) then
+		       bus_ack <= bus_en and not bus_ack;
+        end if;
+    end process;
 
 	 timestamp_counter : process (reset_n, clk_sys)
     begin
