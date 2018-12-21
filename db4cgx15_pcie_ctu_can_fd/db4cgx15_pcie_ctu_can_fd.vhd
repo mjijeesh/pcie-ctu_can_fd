@@ -119,6 +119,7 @@ architecture ppl_type of db4cgx15_pcie_ctu_can_fd is
 			pcie_hard_ip_0_test_out_test_out                        : out std_logic_vector(8 downto 0);                     -- test_out
 
          clk_50_clk                                              : out std_logic;
+         clk_100_clk                                             : out std_logic;
          pcie_core_clk_clk                                       : out std_logic
 	);
 	end component pcie_core;
@@ -164,7 +165,8 @@ begin
 			external_bus_interface_read_data   => reg_data_out,  -- .read_data
 
 			clk_50_clk                         => open,
-			pcie_core_clk_clk                  => clk_sys
+         clk_100_clk                        => clk_sys,
+			pcie_core_clk_clk                  => open
 		);
 
    can_fd_inst : CAN_top_level
