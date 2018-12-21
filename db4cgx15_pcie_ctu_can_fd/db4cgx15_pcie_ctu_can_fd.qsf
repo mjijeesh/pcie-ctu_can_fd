@@ -1,0 +1,162 @@
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) 2017  Intel Corporation. All rights reserved.
+# Your use of Intel Corporation's design tools, logic functions 
+# and other software and tools, and its AMPP partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Intel Program License 
+# Subscription Agreement, the Intel Quartus Prime License Agreement,
+# the Intel MegaCore Function License Agreement, or other 
+# applicable license agreement, including, without limitation, 
+# that your use is for the sole purpose of programming logic 
+# devices manufactured by Intel and sold by Intel or its 
+# authorized distributors.  Please refer to the applicable 
+# agreement for further details.
+#
+# -------------------------------------------------------------------------- #
+#
+# Quartus Prime
+# Version 17.0.1 Build 598 06/07/2017 SJ Lite Edition
+# Date created = 14:21:02  December 20, 2018
+#
+# -------------------------------------------------------------------------- #
+#
+# Notes:
+#
+# 1) The default values for assignments are stored in the file:
+#		db4cgx15_pcie_ctu_can_fd_assignment_defaults.qdf
+#    If this file doesn't exist, see file:
+#		assignment_defaults.qdf
+#
+# 2) Altera recommends that you do not modify this file. This
+#    file is updated automatically by the Quartus Prime software
+#    and any changes you make may be lost or overwritten.
+#
+# -------------------------------------------------------------------------- #
+
+
+set_global_assignment -name FAMILY "Cyclone IV GX"
+set_global_assignment -name DEVICE EP4CGX15BF14C6
+set_global_assignment -name TOP_LEVEL_ENTITY db4cgx15_pcie_ctu_can_fd
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 17.0.1
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "14:21:02  DECEMBER 20, 2018"
+set_global_assignment -name LAST_QUARTUS_VERSION "17.0.1 Lite Edition"
+set_global_assignment -name SEARCH_PATH "pci_express_compiler-library/"
+set_global_assignment -name SEARCH_PATH "pci_express_compiler-library"
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
+set_global_assignment -name NOMINAL_CORE_SUPPLY_VOLTAGE 1.2V
+
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.0-V LVTTL"
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+
+set_instance_assignment -name IO_STANDARD "1.8 V" -to rstn
+set_instance_assignment -name IO_STANDARD "1.8 V" -to led
+set_location_assignment PIN_A10 -to clk25b
+set_location_assignment PIN_E6 -to inp[0]
+set_location_assignment PIN_E7 -to inp[3]
+set_location_assignment PIN_N7 -to inp[1]
+set_location_assignment PIN_M7 -to inp[2]
+set_instance_assignment -name IO_STANDARD "1.8 V" -to clk25b
+set_location_assignment PIN_A6 -to led[1]
+set_location_assignment PIN_A7 -to led[0]
+set_location_assignment PIN_C6 -to mem_addr_from_the_altmemddr_0[0]
+set_location_assignment PIN_K12 -to mem_addr_from_the_altmemddr_0[1]
+set_location_assignment PIN_N13 -to mem_addr_from_the_altmemddr_0[2]
+set_location_assignment PIN_K13 -to mem_addr_from_the_altmemddr_0[3]
+set_location_assignment PIN_F9 -to mem_addr_from_the_altmemddr_0[4]
+set_location_assignment PIN_K11 -to mem_addr_from_the_altmemddr_0[5]
+set_location_assignment PIN_F10 -to mem_addr_from_the_altmemddr_0[6]
+set_location_assignment PIN_L13 -to mem_addr_from_the_altmemddr_0[7]
+set_location_assignment PIN_H10 -to mem_addr_from_the_altmemddr_0[8]
+set_location_assignment PIN_M13 -to mem_addr_from_the_altmemddr_0[9]
+set_location_assignment PIN_J13 -to mem_addr_from_the_altmemddr_0[10]
+set_location_assignment PIN_G9 -to mem_addr_from_the_altmemddr_0[11]
+set_location_assignment PIN_L12 -to mem_addr_from_the_altmemddr_0[12]
+set_location_assignment PIN_H12 -to mem_ba_from_the_altmemddr_0[0]
+set_location_assignment PIN_G10 -to mem_ba_from_the_altmemddr_0[1]
+set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_cas_n_from_the_altmemddr_0
+set_location_assignment PIN_D11 -to mem_cas_n_from_the_altmemddr_0
+set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_cke_from_the_altmemddr_0
+set_location_assignment PIN_F11 -to mem_cke_from_the_altmemddr_0
+set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_cs_n_from_the_altmemddr_0
+set_location_assignment PIN_B6 -to mem_cs_n_from_the_altmemddr_0
+set_location_assignment PIN_C11 -to mem_dm_from_the_altmemddr_0
+set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dm_from_the_altmemddr_0
+set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_odt_from_the_altmemddr_0
+set_location_assignment PIN_A8 -to mem_odt_from_the_altmemddr_0
+set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_ras_n_from_the_altmemddr_0
+set_location_assignment PIN_B11 -to mem_ras_n_from_the_altmemddr_0
+set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_we_n_from_the_altmemddr_0
+set_location_assignment PIN_D12 -to mem_we_n_from_the_altmemddr_0
+set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_clk_to_and_from_the_altmemddr_0
+set_location_assignment PIN_E10 -to mem_clk_to_and_from_the_altmemddr_0
+set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_clk_n_to_and_from_the_altmemddr_0
+set_location_assignment PIN_D10 -to mem_clk_n_to_and_from_the_altmemddr_0
+set_location_assignment PIN_C8 -to mem_dq_to_and_from_the_altmemddr_0[0]
+set_location_assignment PIN_C13 -to mem_dq_to_and_from_the_altmemddr_0[1]
+set_location_assignment PIN_A12 -to mem_dq_to_and_from_the_altmemddr_0[2]
+set_location_assignment PIN_B13 -to mem_dq_to_and_from_the_altmemddr_0[3]
+set_location_assignment PIN_D13 -to mem_dq_to_and_from_the_altmemddr_0[4]
+set_location_assignment PIN_B8 -to mem_dq_to_and_from_the_altmemddr_0[5]
+set_location_assignment PIN_C12 -to mem_dq_to_and_from_the_altmemddr_0[6]
+set_location_assignment PIN_A11 -to mem_dq_to_and_from_the_altmemddr_0[7]
+set_location_assignment PIN_A13 -to mem_dqs_to_and_from_the_altmemddr_0
+set_instance_assignment -name IO_STANDARD "SSTL-18 CLASS I" -to mem_dqs_to_and_from_the_altmemddr_0
+
+set_location_assignment PIN_J6 -to pcie_ref_clk
+set_instance_assignment -name IO_STANDARD HCSL -to pcie_ref_clk
+set_location_assignment PIN_J2 -to pcie_rx0
+set_instance_assignment -name IO_STANDARD "1.5-V PCML" -to pcie_rx0
+set_location_assignment PIN_G2 -to pcie_tx0
+set_instance_assignment -name IO_STANDARD "1.5-V PCML" -to pcie_tx0
+set_location_assignment PIN_G13 -to reset_n
+set_instance_assignment -name IO_STANDARD "1.8 V" -to reset_n
+set_location_assignment PIN_A9 -to pcie_reset_n
+set_instance_assignment -name IO_STANDARD "1.8 V" -to pcie_reset_n
+set_location_assignment PIN_H13 -to pcie_wake
+set_instance_assignment -name IO_STANDARD "1.8 V" -to pcie_wake
+
+set_location_assignment PIN_L4 -to io_data[0]
+set_location_assignment PIN_M4 -to io_data[1]
+set_location_assignment PIN_N4 -to io_data[2]
+set_location_assignment PIN_N5 -to io_data[3]
+set_location_assignment PIN_N6 -to io_data[5]
+set_location_assignment PIN_L5 -to io_data[4]
+set_location_assignment PIN_M6 -to io_data[6]
+set_location_assignment PIN_L7 -to io_data[7]
+set_location_assignment PIN_N8 -to io_data_g
+set_location_assignment PIN_M9 -to io_data_dir
+set_location_assignment PIN_K8 -to io_ctrl[0]
+set_location_assignment PIN_N9 -to io_ctrl[1]
+set_location_assignment PIN_L9 -to io_ctrl[2]
+set_location_assignment PIN_K9 -to io_ctrl[3]
+set_location_assignment PIN_N10 -to io_ctrl[4]
+set_location_assignment PIN_M11 -to io_ctrl[5]
+set_location_assignment PIN_N11 -to io_ctrl[6]
+set_location_assignment PIN_N12 -to io_ctrl_g
+set_location_assignment PIN_K10 -to io_ctrl_dir
+set_location_assignment PIN_L11 -to io_pwr
+
+
+set_location_assignment PIN_L7 -to can_tx
+set_location_assignment PIN_N7 -to can_rx
+
+set_location_assignment PIN_M4 -to rs_txd
+set_location_assignment PIN_L4 -to rs_txen
+set_location_assignment PIN_E6 -to rs_rxd
+
+
+set_global_assignment -name QSYS_FILE pcie_core.qsys
+set_global_assignment -name VHDL_FILE db4cgx15_pcie_ctu_can_fd.vhd
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

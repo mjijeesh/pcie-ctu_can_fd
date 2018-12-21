@@ -1,0 +1,3 @@
+[submodule "modules/ctu_can_fd"]
+	path = modules/ctu_can_fd
+	url = https://gitlab.fel.cvut.cz/illeondr/CAN_FD_IP_Core.git
