@@ -1,0 +1,9 @@
+db/
+pcie_core/
+incremental_db/
+output_files/
+.qsys_edit/
+
+*.rpt
+*.sopcinfo
+*.bak
