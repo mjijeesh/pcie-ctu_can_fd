@@ -75,6 +75,9 @@ end db4cgx15_pcie_ctu_can_fd;
 
 architecture ppl_type of db4cgx15_pcie_ctu_can_fd is
 
+   constant can_fd_instances_number : natural := 2;
+   signal can_fd_local_feedback : std_logic := '0';
+
 	component pcie_core is
 		port (
 			clk_25_clk                                              : in  std_logic                     := 'X';             -- clk
@@ -124,12 +127,20 @@ architecture ppl_type of db4cgx15_pcie_ctu_can_fd is
 	);
 	end component pcie_core;
 
+   type reg_data_out_type is array (0 to can_fd_instances_number - 1) of
+	                                 std_logic_vector(31 downto 0);
+
    signal reg_data_in      : std_logic_vector(31 downto 0);
-   signal reg_data_out     : std_logic_vector(31 downto 0);
+   signal reg_data_out     : reg_data_out_type;
    signal reg_addr         : std_logic_vector(COMP_TYPE_ADRESS_HIGHER downto 0);
    signal reg_be           : std_logic_vector(3 downto 0);
    signal reg_rden         : std_logic;
    signal reg_wren         : std_logic;
+   signal reg_cs           : std_logic_vector(can_fd_instances_number - 1 downto 0);
+   signal irq_vec          : std_logic_vector(can_fd_instances_number - 1 downto 0);
+   constant irq_vec0       : std_logic_vector(can_fd_instances_number - 1 downto 0)
+	                                           := (others => '0');
+   signal inst_sel         : natural;
 	signal timestamp        : std_logic_vector(63 downto 0);
    signal clk_sys          : std_logic;
    signal irq              : std_logic;
@@ -137,6 +148,12 @@ architecture ppl_type of db4cgx15_pcie_ctu_can_fd is
    signal bus_en           : std_logic;
    signal bus_addr         : std_logic_vector(15 downto 0);
    signal bus_ack          : std_logic;
+   signal bus_data_rd      : std_logic_vector(31 downto 0);
+   signal bus_data_wr      : std_logic_vector(31 downto 0);
+
+   signal can_tx_combined  : std_logic;
+   signal can_tx_vec       : std_logic_vector(can_fd_instances_number - 1 downto 0);
+   signal can_rx_vec       : std_logic_vector(can_fd_instances_number - 1 downto 0);
 
 -- {ALTERA_COMPONENTS_BEGIN} DO NOT REMOVE THIS LINE!
 -- {ALTERA_COMPONENTS_END} DO NOT REMOVE THIS LINE!
@@ -161,45 +178,50 @@ begin
 			external_bus_interface_bus_enable  => bus_en,        -- .bus_enable
 			external_bus_interface_byte_enable => reg_be,        -- .byte_enable
 			external_bus_interface_rw          => bus_rw ,       -- .rw
-			external_bus_interface_write_data  => reg_data_in,   -- .write_data
-			external_bus_interface_read_data   => reg_data_out,  -- .read_data
+			external_bus_interface_write_data  => bus_data_wr,   -- .write_data
+			external_bus_interface_read_data   => bus_data_rd,  -- .read_data
 
 			clk_50_clk                         => open,
          clk_100_clk                        => clk_sys,
 			pcie_core_clk_clk                  => open
 		);
 
-   can_fd_inst : CAN_top_level
-        generic map (
-            use_logger      => true,
-            rx_buffer_size  => 64,
-            use_sync        => true,
-            sup_filtA       => true,
-            sup_filtB       => true,
-            sup_filtC       => true,
-            sup_range       => true,
-            logger_size     => 32
-        )
-        port map (
-            clk_sys         => clk_sys,
-            res_n           => reset_n,
+   can_fd_instances_for : for k in 0 to can_fd_instances_number-1 generate
+   begin
+       reg_cs(k) <= '1' when k = inst_sel
+		              else '0';
+       can_fd_inst : CAN_top_level
+            generic map (
+                use_logger      => true,
+                rx_buffer_size  => 64,
+                use_sync        => true,
+                sup_filtA       => true,
+                sup_filtB       => true,
+                sup_filtC       => true,
+                sup_range       => true,
+                logger_size     => 32
+            )
+            port map (
+                clk_sys         => clk_sys,
+                res_n           => reset_n,
 
-            data_in         => reg_data_in,
-            data_out        => reg_data_out,
-            adress          => reg_addr,
-            scs             => bus_en,
-            srd             => reg_rden,
-            swr             => reg_wren,
-            sbe             => reg_be,
+                data_in         => reg_data_in,
+                data_out        => reg_data_out(k),
+                adress          => reg_addr,
+                scs             => reg_cs(k),
+                srd             => reg_rden,
+                swr             => reg_wren,
+                sbe             => reg_be,
 
-            int             => irq,
+                int             => irq_vec(k),
 
-            CAN_tx          => can_tx,
-            CAN_rx          => can_rx,
+                CAN_tx          => can_tx_vec(k),
+                CAN_rx          => can_rx_vec(k),
 
-            time_quanta_clk => open,
-            timestamp       => timestamp
-        );
+                time_quanta_clk => open,
+                timestamp       => timestamp
+            );
+    end generate can_fd_instances_for;
 
 	 ack_delay : process (reset_n, clk_sys)
     begin
@@ -237,4 +259,38 @@ begin
 
     reg_addr(1 downto 0) <= (others => '0');
 
+	 irq <= '1' when irq_vec /= irq_vec0 else '0';
+
+    inst_sel <= to_integer(unsigned(bus_addr(15 downto 14)));
+
+	 reg_data_in <= bus_data_wr;
+
+	 bus_data_rd <= reg_data_out(inst_sel);
+
+	 can_rx_combine_process : process (can_tx_vec, can_rx, can_fd_local_feedback)
+    variable can_rx_and  : std_logic_vector(can_tx_vec'length - 1 downto 0);
+    variable can_rx_expand : std_logic_vector(can_tx_vec'length - 1 downto 0);
+    begin
+        can_rx_and := (others => can_rx);
+        can_rx_and_for : for k in 0 to can_tx_vec'length-1 loop
+		      can_rx_expand  := (others => can_tx_combined);
+				if can_fd_local_feedback = '0' then
+				    can_rx_expand(k) := '1';
+				end if;
+            can_rx_and := can_rx_and and can_rx_expand;
+        end loop can_rx_and_for;
+        can_rx_vec <= can_rx_and;
+    end process can_rx_combine_process;
+
+	 can_tx_combine_process : process (can_tx_vec)
+    variable can_tx_and  : std_logic;
+    begin
+        can_tx_and := '1';
+        can_tx_and_for : for k in 0 to can_tx_vec'length-1 loop
+            can_tx_and := can_tx_and and can_tx_vec(k);
+        end loop can_tx_and_for;
+        can_tx_combined <= can_tx_and;
+    end process can_tx_combine_process;
+
+    can_tx <= can_tx_combined;
 end;
