@@ -243,8 +243,8 @@ begin
         end if;
     end process;
 
-    reg_rden <= bus_en and bus_rw;
-    reg_wren <= bus_en and not bus_rw;
+    reg_rden <= bus_en and bus_rw and not bus_ack;
+    reg_wren <= bus_en and not bus_rw and not bus_ack;
 
     reg_addr(COMP_TYPE_ADRESS_HIGHER downto COMP_TYPE_ADRESS_LOWER) <=
         CAN_COMPONENT_TYPE;
