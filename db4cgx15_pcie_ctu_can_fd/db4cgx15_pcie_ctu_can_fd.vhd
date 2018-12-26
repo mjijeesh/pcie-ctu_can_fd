@@ -267,21 +267,6 @@ begin
 
 	 bus_data_rd <= reg_data_out(inst_sel);
 
-	 can_rx_combine_process : process (can_tx_vec, can_rx, can_fd_local_feedback)
-    variable can_rx_and  : std_logic_vector(can_tx_vec'length - 1 downto 0);
-    variable can_rx_expand : std_logic_vector(can_tx_vec'length - 1 downto 0);
-    begin
-        can_rx_and := (others => can_rx);
-        can_rx_and_for : for k in 0 to can_tx_vec'length-1 loop
-		      can_rx_expand  := (others => can_tx_combined);
-				if can_fd_local_feedback = '0' then
-				    can_rx_expand(k) := '1';
-				end if;
-            can_rx_and := can_rx_and and can_rx_expand;
-        end loop can_rx_and_for;
-        can_rx_vec <= can_rx_and;
-    end process can_rx_combine_process;
-
 	 can_tx_combine_process : process (can_tx_vec)
     variable can_tx_and  : std_logic;
     begin
@@ -292,5 +277,9 @@ begin
         can_tx_combined <= can_tx_and;
     end process can_tx_combine_process;
 
-    can_tx <= can_tx_combined;
+    can_tx <= can_tx_combined when can_fd_local_feedback = '0' else '1';
+
+    can_rx_vec <= (others => can_rx) when can_fd_local_feedback = '0' else
+	                                      (others => can_tx_combined);
+
 end;
