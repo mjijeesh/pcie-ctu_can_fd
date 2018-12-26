@@ -1,0 +1,7 @@
+#!/usr/bin/env urjtag
+
+cable usbblaster
+detect
+part 0
+svf ../db4cgx15_pcie_ctu_can_fd/db4cgx15_pcie_ctu_can_fd.svf
+
