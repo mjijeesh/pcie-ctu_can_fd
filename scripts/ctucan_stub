@@ -1,0 +1,25 @@
+#!/bin/sh
+
+echo 1 > /sys/bus/pci/rescan
+pci_dev="$(lspci -n -d 1172: | sed -e 's/\([0-9:]\+\) .*$/\1/')"
+if [ -z "$pci_dev" ] ; then
+  echo "PCI device not found"
+  exit 1
+fi
+echo "pci_dev=$pci_dev"
+pci_dev_dir="$(find /sys/devices/ -name "*$pci_dev" | sed -n -e "s/\(\/sys\/devices\/pci.*\/[0:]*$pci_dev\)/\1/p" )"
+if [ -z "$pci_dev_dir" ] ; then
+  echo "PCI device directory not found"
+  exit 1
+fi
+echo "pci_dev_dir=$pci_dev_dir"
+pci_dev_ext="$(basename "$pci_dev_dir")"
+
+modprobe pci_stub
+echo "1172 cafd" > /sys/bus/pci/drivers/pci-stub/new_id
+
+if [ -e "/sys/bus/pci/devices/$pci_dev_dir/driver" ] ; then
+  echo "$pci_dev_ext" > "/sys/bus/pci/devices/$pci_dev_dir/driver/unbind"
+fi
+echo "$pci_dev_ext" > /sys/bus/pci/drivers/pci-stub/bind
+chmod a+rw /sys/bus/pci/devices/$pci_dev_ext/config

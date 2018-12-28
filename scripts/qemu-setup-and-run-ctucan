@@ -1,0 +1,299 @@
+#!/bin/bash
+#
+# QEMU trick to dive user in his own home environment
+# as root in a virualized shadow of his own system
+#
+# (C) 2013 Pavel Pisa <pisa@cmp.felk.cvut.cz>
+#
+# THE TSCRIPT IS PROVIDED “AS IS” WITHOUT WARRANTY
+# OF ANY KIND, EITHER EXPRESSED OR IMPLIED.
+#
+# There is no limitation of scrip use, modification
+# and distribution or relicensing.
+#
+# Some used ideas are documented at CTU FEE A4M35OSP
+# excercises pages
+#   http://support.dce.felk.cvut.cz/osp/cviceni/2/
+#   http://support.dce.felk.cvut.cz/osp/cviceni/2-en/
+#
+# and Departemnt Of Control Engineering IT Wiki
+#   https://support.dce.felk.cvut.cz/
+#
+
+QEMU=qemu-system-x86_64
+BUSYBOX=$(which busybox)
+RESIZE=$(which resize)
+KERNEL_VERSION=$(uname -r)
+KERNEL_IMAGE=/boot/vmlinuz-${KERNEL_VERSION}
+RAMDISK_ARCHIVE=ramdisk.cpio
+#GEN_INIT_CPIO=$(dirname $0)/gen_init_cpio
+INITRD_DIR=initrd_content
+MODULES_LIST="virtio virtio_ring virtio_pci virtio_net virtio_net fscache 9pnet 9pnet_virtio 9p aufs overlay"
+QEMU_MEMORY="-m 1024"
+QEMU_KVM_ENABLE="-enable-kvm"
+#QEMU_OUTPUT="-vga cirrus -serial null"
+QEMU_OUTPUT="-nographic -serial mon:stdio -append console=ttyS0"
+#QEMU_PASSTHROUGH="-device pci-assign,host=03:00.0"
+#QEMU_PASSTHROUGH="-device vfio-pci,host=03:00.0"
+QEMU_PASSTHROUGH="-device pci-assign,host=05:00.0"
+
+INITRD_DIR_ABS=$(readlink -f ${INITRD_DIR})
+
+function libraries_for_binary()
+{
+  ldd $1 | sed -n -e 's#^\t\(/[^ ]*\) .*$#\1#p' -e 's#^\t\([^ ]*\) => \([^ ]\+\) .*$#\2#p'
+}
+
+function deep_copy()
+{
+  src=$1
+  tgt_dir=$2
+
+  while true ; do
+    mkdir -p ${tgt_dir}/$(dirname ${src}) || return 1
+    cp -v ${src} ${tgt_dir}/${src#/} || return 1
+    cp -auv ${src} ${tgt_dir}/${src#/}
+
+    l=$(readlink ${src})
+    if [ -z "$l" ] ; then
+      return 0
+    fi
+    if [ ${l:0:1} != '/' ] ; then
+      l=$(dirname ${src})/${l}
+    fi
+    src=${l}
+  done
+}
+
+function setup_initrd_content()
+{
+  mkdir -p ${INITRD_DIR_ABS}
+  mkdir -p ${INITRD_DIR_ABS}/bin
+  mkdir -p ${INITRD_DIR_ABS}/etc/init.d
+
+  LIBS=$(libraries_for_binary ${BUSYBOX})
+  if [ -n "${RESIZE}" ] ; then
+    LIBS+=" "$(libraries_for_binary ${RESIZE})
+  fi
+
+  LIBS="$(for i in ${LIBS} ; do echo $i ; done | sort -u)"
+
+  for i in ${LIBS}; do
+    deep_copy ${i} ${INITRD_DIR_ABS}
+  done
+
+  cp -a ${BUSYBOX} ${INITRD_DIR_ABS}/bin
+  ( cd ${INITRD_DIR_ABS}/bin && ln -s busybox sh )
+
+  if [ -n "${RESIZE}" ] ; then
+    cp -a ${RESIZE} ${INITRD_DIR_ABS}/bin
+  fi
+
+
+  for m in ${MODULES_LIST} ; do
+    mf=$(find /lib/modules/${KERNEL_VERSION} -name ${m}.ko )
+    if [ -n "${mf}" ] ; then
+      mkdir -p "${INITRD_DIR_ABS}/$(dirname ${mf})"
+      cp -a "${mf}" "${INITRD_DIR_ABS}/${mf#/}"
+    else
+      echo "Module ${m} not found"
+    fi
+  done
+
+  rootmnt=/mnt/root
+  init=/sbin/init
+  root_dir_list="/proc /sys /dev /mnt /mnt/root /mnt/rootbase /mnt/overlay /tmp"
+
+  (
+    echo '#!/bin/sh'
+    for d in $root_dir_list ; do
+       echo "mkdir -p $d"
+    done
+
+    cat <<EOF
+echo "Starting QEMU trick"
+if mount -t proc none /proc ; then
+  echo "mount works directly"
+  BINPR=""
+else
+  echo "trying busybox mount"
+  BINPR="/bin/busybox "
+  if ! \${BINPR}mount -t proc none /proc ; then
+    echo "mounting proc failed, cannot continue"
+    sleep 10
+    exit 1
+  fi
+fi
+\${BINPR}mount -t sysfs none /sys
+\${BINPR}mount -t tmpfs none /dev
+\${BINPR}depmod
+EOF
+    for m in ${MODULES_LIST} ; do
+      echo modprobe $m
+    done
+    cat <<EOF
+\${BINPR}mdev -s
+if [ -e /bin/resize ] ; then
+  \${BINPR}mv /dev/tty /dev/tty-backup
+  \${BINPR}ln -s /dev/console /dev/tty
+  /bin/resize >/tmp/term-size
+  . /tmp/term-size
+  \${BINPR}stty cols \$COLUMNS rows \$LINES
+  \${BINPR}rm -f /dev/tty
+  \${BINPR}mv /dev/tty-backup /dev/tty
+fi
+\${BINPR}mount -t 9p -o ro,trans=virtio,version=9p2000.u root /mnt/rootbase
+\${BINPR}mount -t tmpfs overlay /mnt/overlay
+\${BINPR}mkdir -p /mnt/overlay/data
+
+echo "Ready to setup overlay"
+#sleep 5
+#/bin/sh
+
+if grep -q aufs /proc/filesystems ; then
+  echo "Using aufs to remap root"
+  \${BINPR}mount -n -t aufs -o noxino,noatime,dirs=/mnt/overlay/data=rw:/mnt/rootbase=ro aufs-root ${rootmnt}
+else
+  echo "Using overlay to remap root"
+  \${BINPR}mkdir -p /mnt/overlay/work
+  \${BINPR}mount -n -t overlay -o upperdir=/mnt/overlay/data,workdir=/mnt/overlay/work,lowerdir=/mnt/rootbase overlay-root ${rootmnt}
+fi
+
+\${BINPR}mount -n -o move /dev ${rootmnt}/dev
+\${BINPR}mount -n -o move /sys ${rootmnt}/sys
+\${BINPR}mount -n -o move /proc ${rootmnt}/proc
+\${BINPR}mount -t 9p -o trans=virtio,version=9p2000.u home ${rootmnt}/home
+\${BINPR}mount -t tmpfs none ${rootmnt}/root
+\${BINPR}mount -t tmpfs none ${rootmnt}/tmp
+\${BINPR}mount -t tmpfs none ${rootmnt}/run
+\${BINPR}mount -t tmpfs none ${rootmnt}/var/log
+\${BINPR}mount -t tmpfs none ${rootmnt}/var/tmp
+
+\${BINPR}rm -f ${rootmnt}/var/lib/urandom/random-seed
+\${BINPR}rm -rf ${rootmnt}/etc/shadow
+echo >${rootmnt}/etc/shadow
+\${BINPR}rm -rf ${rootmnt}/etc/ssh
+\${BINPR}mkdir ${rootmnt}/etc/ssh
+
+\${BINPR}rm -f ${rootmnt}/etc/rc2.d/* ${rootmnt}/etc/rc3.d/* ${rootmnt}/etc/rc4.d/* ${rootmnt}/etc/rc5.d/*
+
+\${BINPR}rm -rf ${rootmnt}/etc/fstab.d ${rootmnt}/etc/fstab
+echo >${rootmnt}/etc/fstab
+
+\${BINPR}rm -rf ${rootmnt}/var/lib/dpkg/lock ${rootmnt}/var/lib/apt/lists/lock ${rootmnt}/var/cache/apt/archives/lock
+\${BINPR}rm -rf ${rootmnt}/etc/apt/apt.conf.d/*etckeeper ${rootmnt}/var/lib/dpkg/triggers/Lock
+
+\${BINPR}rm -rf ${rootmnt}/etc/network/interfaces.d ${rootmnt}/etc/network/interfaces
+echo "auto lo eth0" >${rootmnt}/etc/network/interfaces
+echo "iface lo inet loopback" >>${rootmnt}/etc/network/interfaces
+echo "iface eth0 inet dhcp" >>${rootmnt}/etc/network/interfaces
+
+if  [ -e ${rootmnt}/bin/bash ] ; then
+  shell=/bin/bash
+else
+  shell=/bin/sh
+fi
+
+\${BINPR}mv ${rootmnt}/etc/inittab ${rootmnt}/etc/inittab.orig
+\${BINPR}cp ${rootmnt}/etc/inittab.orig ${rootmnt}/etc/inittab
+\${BINPR}sed -i -e '/\/sbin\/.*getty/d' ${rootmnt}/etc/inittab
+#echo "1:2345:respawn:/bin/sh" >>${rootmnt}/etc/inittab
+#echo "T0:1234:respawn:/bin/sh" >>${rootmnt}/etc/inittab
+
+echo "1:2345:respawn:/sbin/agetty -n -l \${shell} -o '-l' tty1 38400 linux" >>${rootmnt}/etc/inittab
+echo "2:23:respawn:/sbin/agetty -n -l \${shell} -o '-l' tty2 38400 linux" >>${rootmnt}/etc/inittab
+echo "T0:23:respawn:/sbin/agetty -n -l \${shell} -o '-l' -L ttyS0 9600 xterm" >>${rootmnt}/etc/inittab
+
+cd ${rootmnt}
+echo "Ready to proceed by pivot_root"
+#sleep 5
+#/bin/sh
+
+#mkdir -p ${rootmnt}/overlay/pivot
+#pivot_root . overlay/pivot
+#exec chroot . sbin/init
+#exec \${BINPR}switch_root ${rootmnt} /sbin/init
+exec \${BINPR}switch_root ${rootmnt} /bin/bash
+EOF
+
+  ) >${INITRD_DIR_ABS}/init
+
+  chmod 755 ${INITRD_DIR_ABS}/init
+
+  return 0
+}
+
+function build_initrd_gen_init_cpio()
+{
+
+  (
+    cat <<EOF
+dir /dev 755 0 0
+nod /dev/tty0 644 0 0 c 4 0
+nod /dev/tty1 644 0 0 c 4 1
+nod /dev/tty2 644 0 0 c 4 2
+nod /dev/tty3 644 0 0 c 4 3
+nod /dev/tty4 644 0 0 c 4 4
+#slink /init bin/busybox 700 0 0
+dir /proc 755 0 0
+dir /sys 755 0 0
+dir /mnt 755 0 0
+dir /mnt/root 755 0 0
+dir /mnt/rootbase 755 0 0
+dir /mnt/overlay 755 0 0
+EOF
+    find ${INITRD_DIR} -mindepth 1 -type d -printf "dir /%P %m 0 0\n"
+    find ${INITRD_DIR} -type f -printf "file /%P %p %m 0 0\n"
+    find ${INITRD_DIR} -type l -printf "slink /%P %l %m 0 0\n"
+  ) > filelist
+
+  $GEN_INIT_CPIO filelist | gzip > ${RAMDISK_ARCHIVE}
+
+  return 0
+}
+
+function build_initrd_cpio()
+{
+  ( cd ${INITRD_DIR_ABS} && find . | cpio --quiet -H newc -o  ) | gzip -9 > ${RAMDISK_ARCHIVE}
+}
+
+function run_virt_system()
+{
+  $QEMU ${QEMU_KVM_ENABLE} \
+        -kernel ${KERNEL_IMAGE} \
+        -initrd ${RAMDISK_ARCHIVE} ${QEMU_MEMORY} \
+        -virtfs local,path=/,security_model=none,readonly,mount_tag=root \
+        -virtfs local,path=/home,security_model=none,mount_tag=home \
+        -net nic,macaddr=be:be:be:10:00:01,model=virtio,vlan=0 \
+        -net user,vlan=0 \
+        ${QEMU_OUTPUT} ${QEMU_PASSTHROUGH}
+
+#     -chardev can,id=canbus0,port=can0
+#     -device pci-can,chardev=canbus0,model=SJA1000
+#     -device apohw -vga cirrus
+#     -device mf624,port=55555
+
+  return $?
+}
+
+function clean_setup()
+{
+  rm -rf ${RAMDISK_ARCHIVE} filelist ${INITRD_DIR_ABS}
+}
+
+if [ "$(whoami)" == "root" ] ; then
+  echo "$0: !!! TOO DANGEROUS TO RUN AS ROOT !!!"
+  #exit 1;
+fi
+
+clean_setup || exit 1
+echo "=== setup_initrd_content ==="
+setup_initrd_content || exit 1
+echo "=== build_initrd ==="
+if [ -n "${GEN_INIT_CPIO}" ] ; then
+  build_initrd_gen_init_cpio || exit 1
+else
+  build_initrd_cpio || exit 1
+fi
+echo "=== run_virt_system ==="
+run_virt_system || exit 1
