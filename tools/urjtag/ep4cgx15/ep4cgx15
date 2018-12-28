@@ -1,0 +1,52 @@
+#
+# $Id$
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+#
+# Written by H Hartley Sweeten <hsweeten@visionengravers.com>
+#
+# Note:
+#   The signals defined in this file are generic for any EP4CGX15.
+#   Signalnames according to Altera's package tables are set in the
+#   package specific scripts.
+#
+#                  **Testing Differential Pin Pairs**
+#   Refer to the note in the original bsd-files for issues related to
+#   testing differential pin pairs!
+#
+#         | Version (4 bits) | Part number (16 bits) | Manufacturer Id (11 bits) | LSB (1 bit) |
+# IDCODE: |         0000     |  0010 1000 0000 0001  |       000 0110 1110       |      1      |
+#
+# Documentation:
+# [1] http://bsdl.info/details.htm?sid=4b72ebe7da238fe388ca59b002289d77
+
+register	BYPASS		1
+register	BSR		260
+register	IOCSR		9566
+register	DEVICE_ID	32
+register	USERCODE	32
+
+instruction length 10
+instruction	BYPASS		1111111111	BYPASS
+instruction	IDCODE		0000000110	DEVICE_ID
+instruction	USERCODE	0000000111	USERCODE
+instruction	CLAMP		0000001010	BYPASS
+instruction	SAMPLE/PRELOAD	0000000101	BSR
+instruction	EXTEST		0000001111	BSR
+instruction	CONFIG_IO	0000001101	IOCSR
+instruction	HIGHZ		0000001011	BYPASS
+
+
