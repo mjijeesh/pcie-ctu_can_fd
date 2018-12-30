@@ -158,43 +158,41 @@ set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_RO
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name VHDL_INPUT_VERSION VHDL_2008
 
-set_global_assignment -name SDC_FILE db4cgx15_pcie_ctu_can_fd.sdc
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/ID_transfer.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/rst_sync.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/endian_swap.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_top_level.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Registers_Memory_Interface/canfd_registers.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Registers_Memory_Interface/generated/memory_reg.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Registers_Memory_Interface/generated/memory_bus.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Registers_Memory_Interface/generated/event_logger_reg_map.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Registers_Memory_Interface/generated/data_mux.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Registers_Memory_Interface/generated/control_registers_reg_map.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Registers_Memory_Interface/generated/cmn_reg_map_pkg.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Registers_Memory_Interface/generated/can_registers_pkg.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Registers_Memory_Interface/generated/address_decoder.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Registers_Memory_Interface/generated/access_signaler.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Libraries/reduce_lib.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Libraries/CANconstants.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Libraries/CANcomponents.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Libraries/CAN_FD_register_map.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Libraries/CAN_FD_frame_format.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Interrupts/intManager.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Event_Logger/logger.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_Core/protocolControl.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_Core/operationControl.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_Core/faultConf.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_Core/CRC.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_Core/core_top.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_Core/bitStuffing_v2.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_Core/bitDeStuffing.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Bus_Timing_Synchronisation/prescaler_v3.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Bus_Timing_Synchronisation/busSync.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/txtBuffer.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/txArbitrator.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/rxBuffer.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/priorityDecoder.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/messageFilter.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/inf_RAM_wrapper.vhd
-set_global_assignment -name QSYS_FILE pcie_core.qsys
-set_global_assignment -name VHDL_FILE db4cgx15_pcie_ctu_can_fd.vhd
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+
+set_global_assignment -name SDC_FILE db4cgx15_pcie_ctu_can_fd.sdc
+set_global_assignment -name VHDL_FILE db4cgx15_pcie_ctu_can_fd.vhd -hdl_version VHDL_2008
+set_global_assignment -name QSYS_FILE pcie_core.qsys
+
+# -------------------------------------------------------------------------- #
+# CTU CAN FD core sources list
+
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/inf_RAM_wrapper.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/messageFilter.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/priorityDecoder.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/rxBuffer.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/txArbitrator.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/txtBuffer.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Bus_Timing_Synchronisation/busSync.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Bus_Timing_Synchronisation/prescaler_v3.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_Core/CRC.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_Core/bitDeStuffing.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_Core/bitStuffing_v2.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_Core/core_top.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_Core/faultConf.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_Core/operationControl.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_Core/protocolControl.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/CAN_top_level.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Event_Logger/logger.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/ID_transfer.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Interrupts/intManager.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Libraries/CAN_FD_frame_format.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Libraries/CAN_FD_register_map.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Libraries/CANcomponents.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Libraries/CANconstants.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Libraries/reduce_lib.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Registers_Memory_Interface/canfd_registers.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/apb_ifc.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_top_apb.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/endian_swap.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/rst_sync.vhd
