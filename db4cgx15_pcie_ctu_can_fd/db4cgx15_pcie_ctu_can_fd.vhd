@@ -84,10 +84,13 @@ architecture ppl_type of db4cgx15_pcie_ctu_can_fd is
 			reset_n_reset_n                                         : in  std_logic                     := 'X';             -- reset_n
 
 			pcie_hard_ip_0_pcie_rstn_export                         : in  std_logic                     := 'X';             -- export
-			pcie_hard_ip_0_reconfig_busy_busy_altgxb_reconfig       : in  std_logic                     := 'X';             -- busy_altgxb_reconfig
 			pcie_hard_ip_0_refclk_export                            : in  std_logic                     := 'X';             -- export
 			pcie_hard_ip_0_rx_in_rx_datain_0                        : in  std_logic                     := 'X';             -- rx_datain_0
 			pcie_hard_ip_0_tx_out_tx_dataout_0                      : out std_logic;                                        -- tx_dataout_0
+
+			pcie_hard_ip_0_reconfig_busy_busy_altgxb_reconfig       : in  std_logic                     := 'X';             -- busy_altgxb_reconfig
+			pcie_hard_ip_0_reconfig_fromgxb_0_data                  : out std_logic_vector(4 downto 0);                     -- data
+			pcie_hard_ip_0_reconfig_togxb_data                      : in  std_logic_vector(3 downto 0)  := (others => 'X'); -- data
 
 			external_bus_interface_acknowledge : in  std_logic                     := 'X';             -- acknowledge
 			external_bus_interface_irq         : in  std_logic                     := 'X';             -- irq
@@ -127,6 +130,15 @@ architecture ppl_type of db4cgx15_pcie_ctu_can_fd is
 	);
 	end component pcie_core;
 
+   component altgx_reconfig is
+      port (
+          reconfig_clk     : in std_logic ;
+          reconfig_fromgxb : in std_logic_vector (4 downto 0);
+          busy             : out std_logic ;
+          reconfig_togxb   : out std_logic_vector (3 downto 0)
+	   );
+   end component altgx_reconfig;
+
    type reg_data_out_type is array (0 to can_fd_instances_number - 1) of
 	                                 std_logic_vector(31 downto 0);
 
@@ -155,6 +167,11 @@ architecture ppl_type of db4cgx15_pcie_ctu_can_fd is
    signal can_tx_vec       : std_logic_vector(can_fd_instances_number - 1 downto 0);
    signal can_rx_vec       : std_logic_vector(can_fd_instances_number - 1 downto 0);
 
+   signal clk_50           : std_logic ;
+   signal reconfig_fromgxb : std_logic_vector (4 downto 0);
+   signal reconfig_busy    : std_logic ;
+   signal reconfig_togxb   : std_logic_vector (3 downto 0);
+
 -- {ALTERA_COMPONENTS_BEGIN} DO NOT REMOVE THIS LINE!
 -- {ALTERA_COMPONENTS_END} DO NOT REMOVE THIS LINE!
 begin
@@ -172,7 +189,10 @@ begin
 			pcie_hard_ip_0_tx_out_tx_dataout_0                      => pcie_tx0,       -- pcie_hard_ip_0_tx_out.tx_dataout_0
 			pcie_hard_ip_0_pcie_rstn_export                         => pcie_reset_n,   -- pcie_hard_ip_0_pcie_rstn.export
 
-			pcie_hard_ip_0_reconfig_busy_busy_altgxb_reconfig       => open,          --  pcie_hard_ip_0_reconfig_busy.busy_altgxb_reconfig
+			pcie_hard_ip_0_reconfig_busy_busy_altgxb_reconfig       => reconfig_busy,  --  pcie_hard_ip_0_reconfig_busy.busy_altgxb_reconfig
+			pcie_hard_ip_0_reconfig_fromgxb_0_data                  => reconfig_fromgxb, -- data
+			pcie_hard_ip_0_reconfig_togxb_data                      => reconfig_togxb, -- data
+
 			external_bus_interface_acknowledge => bus_ack,       -- external_bus_interface.acknowledge
 			external_bus_interface_irq         => irq,           -- .irq
 			external_bus_interface_address     => bus_addr,      -- .address
@@ -182,10 +202,18 @@ begin
 			external_bus_interface_write_data  => bus_data_wr,   -- .write_data
 			external_bus_interface_read_data   => bus_data_rd,  -- .read_data
 
-			clk_50_clk                         => open,
+			clk_50_clk                         => clk_50,
          clk_100_clk                        => clk_sys,
 			pcie_core_clk_clk                  => open
 		);
+
+   altgx_reconfig_inst : component altgx_reconfig
+      port map (
+          reconfig_clk     => clk_50,
+          reconfig_fromgxb => reconfig_fromgxb,
+          busy             => reconfig_busy,
+          reconfig_togxb   => reconfig_togxb
+	   );
 
    can_fd_instances_for : for k in 0 to can_fd_instances_number-1 generate
    begin

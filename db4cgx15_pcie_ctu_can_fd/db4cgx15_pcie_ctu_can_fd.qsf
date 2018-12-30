@@ -163,6 +163,7 @@ set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_
 set_global_assignment -name SDC_FILE db4cgx15_pcie_ctu_can_fd.sdc
 set_global_assignment -name VHDL_FILE db4cgx15_pcie_ctu_can_fd.vhd -hdl_version VHDL_2008
 set_global_assignment -name QSYS_FILE pcie_core.qsys
+set_global_assignment -name QIP_FILE altgx_reconfig.qip
 
 # -------------------------------------------------------------------------- #
 # CTU CAN FD core sources list
