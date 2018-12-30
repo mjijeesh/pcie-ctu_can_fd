@@ -166,6 +166,7 @@ begin
 			clk_25_clk                                              => clk25b,			-- clk_25.clk
 			reset_n_reset_n                                         => reset_n,       --  reset.reset_n
 
+			-- has to be 100 or 125 MHz as defined in altera_pcie_hard_ip properties
 			pcie_hard_ip_0_refclk_export                            => pcie_ref_clk,   -- pcie_hard_ip_0_refclk.export
 			pcie_hard_ip_0_rx_in_rx_datain_0                        => pcie_rx0,       -- pcie_hard_ip_0_rx_in.rx_datain_0
 			pcie_hard_ip_0_tx_out_tx_dataout_0                      => pcie_tx0,       -- pcie_hard_ip_0_tx_out.tx_dataout_0

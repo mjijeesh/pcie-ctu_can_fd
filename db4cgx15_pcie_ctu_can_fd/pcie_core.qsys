@@ -384,7 +384,7 @@
   <parameter name="CB_P2A_FIXED_AVALON_ADDR_B3" value="0" />
   <parameter name="CB_P2A_FIXED_AVALON_ADDR_B4" value="0" />
   <parameter name="CB_P2A_FIXED_AVALON_ADDR_B5" value="0" />
-  <parameter name="CB_PCIE_MODE" value="1" />
+  <parameter name="CB_PCIE_MODE" value="0" />
   <parameter name="CB_PCIE_RX_LITE" value="0" />
   <parameter name="CB_TXS_ADDRESS_WIDTH" value="7" />
   <parameter name="CG_AVALON_S_ADDR_WIDTH" value="20" />
