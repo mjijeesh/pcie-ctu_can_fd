@@ -219,9 +219,10 @@ begin
    begin
        reg_cs(k) <= '1' when k = inst_sel
 		              else '0';
+
        can_fd_inst : CAN_top_level
             generic map (
-                use_logger      => true,
+                use_logger      => k = 0,
                 rx_buffer_size  => 64,
                 use_sync        => true,
                 sup_filtA       => true,
