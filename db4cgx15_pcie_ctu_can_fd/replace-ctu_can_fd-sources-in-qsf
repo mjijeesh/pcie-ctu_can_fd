@@ -1,0 +1,13 @@
+#!/bin/sh
+
+cd "$(dirname "$0")"
+
+rm -f db4cgx15_pcie_ctu_can_fd.qsf.orig
+mv db4cgx15_pcie_ctu_can_fd.qsf db4cgx15_pcie_ctu_can_fd.qsf.orig
+
+awk '
+    /\#\#\# CTU CAN FD core sources list - begin \#\#\#/ {print; system("./find-ctu_can_fd-sources"); banner=1; next}
+    /\#\#\# CTU CAN FD core sources list - end \#\#\#/ {banner=0}
+    banner {next}
+    {print}
+' db4cgx15_pcie_ctu_can_fd.qsf.orig >db4cgx15_pcie_ctu_can_fd.qsf

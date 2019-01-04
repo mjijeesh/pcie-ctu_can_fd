@@ -158,7 +158,6 @@ set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_RO
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name VHDL_INPUT_VERSION VHDL_2008
 
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 
 set_global_assignment -name SDC_FILE db4cgx15_pcie_ctu_can_fd.sdc
 set_global_assignment -name VHDL_FILE db4cgx15_pcie_ctu_can_fd.vhd -hdl_version VHDL_2008
@@ -166,8 +165,8 @@ set_global_assignment -name QSYS_FILE pcie_core.qsys
 set_global_assignment -name QIP_FILE altgx_reconfig.qip
 
 # -------------------------------------------------------------------------- #
-# CTU CAN FD core sources list
-
+### CTU CAN FD core sources list - begin ###
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Registers_Memory_Interface/canfd_registers.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/inf_RAM_wrapper.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/messageFilter.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Buffers_Message_Handling/priorityDecoder.vhd
@@ -192,8 +191,11 @@ set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Libraries/CAN_FD
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Libraries/CANcomponents.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Libraries/CANconstants.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Libraries/reduce_lib.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/Registers_Memory_Interface/canfd_registers.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/apb_ifc.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_top_apb.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/endian_swap.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/rst_sync.vhd
+### CTU CAN FD core sources list - end ###
+# -------------------------------------------------------------------------- #
+
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
