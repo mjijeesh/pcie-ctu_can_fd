@@ -223,7 +223,7 @@ begin
        can_fd_inst : CAN_top_level
             generic map (
                 use_logger      => k = 0,
-                rx_buffer_size  => 64,
+                rx_buffer_size  => 2048,
                 use_sync        => true,
                 sup_filtA       => true,
                 sup_filtB       => true,
