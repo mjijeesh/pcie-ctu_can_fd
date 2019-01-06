@@ -263,13 +263,13 @@ begin
     end process;
 
 	 timestamp_counter : process (reset_n, clk_sys)
+	 variable timestamp_next : unsigned(timestamp'range);
     begin
         if (reset_n = '0') then
              timestamp <= (OTHERS => '0');
         elsif (rising_edge(clk_sys)) then
-		       timestamp <= std_logic_vector(to_unsigned(
-				                   (to_integer(unsigned(timestamp)) + 1),
-								    timestamp'length));
+		timestamp_next := unsigned(timestamp) + 1;
+		timestamp <= std_logic_vector(timestamp_next);
         end if;
     end process;
 
