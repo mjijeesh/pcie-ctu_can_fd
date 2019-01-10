@@ -166,18 +166,10 @@ set_global_assignment -name QIP_FILE altgx_reconfig.qip
 
 # -------------------------------------------------------------------------- #
 ### CTU CAN FD core sources list - begin ###
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/access_signaler.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/address_decoder.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/cmn_reg_map_pkg.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/data_mux.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/event_logger_reg_map.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/memory_bus.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/memory_reg.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/can_registers_pkg.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/control_registers_reg_map.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/memory_registers.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/apb/apb_ifc.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/bus_sampling/bus_sampling.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/bus_sampling/data_edge_detector.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/bus_sampling/trv_delay_meas.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_core/bit_destuffing/bit_destuffing.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_core/bit_stuffing/bit_stuffing.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_core/bus_traffic_counters/bus_traffic_counters.vhd
@@ -189,6 +181,7 @@ set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_core/fault_c
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_core/operation_control/operation_control.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_core/protocol_control/protocol_control.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_top_apb.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_top_level.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/common/dff_arst.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/common/endian_swap.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/common/inf_ram_wrapper.vhd
@@ -201,17 +194,27 @@ set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/event_logger/eve
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/frame_filters/bit_filter.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/frame_filters/frame_filters.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/frame_filters/range_filter.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/interrupts/int_module.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/interrupts/int_manager.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/interrupts/int_module.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/lib/can_constants.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/lib/can_fd_frame_format.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/lib/can_types.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/lib/cmn_lib.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/lib/drv_stat_pkg.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/lib/id_transfer.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/lib/reduce_lib.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/lib/can_components.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/lib/can_fd_register_map.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/lib/drv_stat_pkg.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/access_signaler.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/address_decoder.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/memory_bus.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/can_registers_pkg.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/cmn_reg_map_pkg.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/control_registers_reg_map.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/data_mux.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/event_logger_reg_map.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/memory_reg.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/memory_registers.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/prescaler/prescaler.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/rx_buffer/rx_buffer.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/rx_buffer/rx_buffer_fsm.vhd
@@ -221,7 +224,6 @@ set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/tx_arbitrator/tx
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/tx_arbitrator/tx_arbitrator_fsm.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/txt_buffer/txt_buffer.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/txt_buffer/txt_buffer_fsm.vhd
-set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_top_level.vhd
 ### CTU CAN FD core sources list - end ###
 # -------------------------------------------------------------------------- #
 
