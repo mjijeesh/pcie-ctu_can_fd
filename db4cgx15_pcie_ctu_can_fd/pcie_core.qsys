@@ -62,6 +62,22 @@
          type = "boolean";
       }
    }
+   element pcie_hard_ip_0.cra
+   {
+      datum baseAddress
+      {
+         value = "16384";
+         type = "String";
+      }
+   }
+   element pio_0
+   {
+      datum _sortIndex
+      {
+         value = "7";
+         type = "int";
+      }
+   }
    element to_external_bus_bridge_0
    {
       datum _sortIndex
@@ -102,6 +118,11 @@
    internal="clock_bridge_50.out_clk"
    type="clock"
    dir="start" />
+ <interface
+   name="ctucan_id_word"
+   internal="pio_0.external_connection"
+   type="conduit"
+   dir="end" />
  <interface
    name="external_bus_interface"
    internal="to_external_bus_bridge_0.external_interface"
@@ -162,11 +183,7 @@
    internal="pcie_hard_ip_0.test_in"
    type="conduit"
    dir="end" />
- <interface
-   name="pcie_hard_ip_0_test_out"
-   internal="pcie_hard_ip_0.test_out"
-   type="conduit"
-   dir="end" />
+ <interface name="pcie_hard_ip_0_test_out" internal="pcie_hard_ip_0.test_out" />
  <interface
    name="pcie_hard_ip_0_tx_out"
    internal="pcie_hard_ip_0.tx_out"
@@ -413,7 +430,7 @@
   <parameter name="RXM_BEN_WIDTH" value="8" />
   <parameter name="RXM_DATA_WIDTH" value="64" />
   <parameter name="RX_BUF" value="9" />
-  <parameter name="SLAVE_ADDRESS_MAP_0" value="14" />
+  <parameter name="SLAVE_ADDRESS_MAP_0" value="15" />
   <parameter name="SLAVE_ADDRESS_MAP_1" value="16" />
   <parameter name="SLAVE_ADDRESS_MAP_1_0" value="0" />
   <parameter name="SLAVE_ADDRESS_MAP_2" value="0" />
@@ -437,7 +454,7 @@
   <parameter name="completion_timeout" value="NONE" />
   <parameter name="credit_buffer_allocation_aux" value="ABSOLUTE" />
   <parameter name="deviceFamily" value="Cyclone IV GX" />
-  <parameter name="device_id" value="51965" />
+  <parameter name="device_id" value="65280" />
   <parameter name="diffclock_nfts_count" value="255" />
   <parameter name="dll_active_report_support" value="false" />
   <parameter name="eie_before_nfts_count" value="4" />
@@ -479,7 +496,7 @@
   <parameter name="no_soft_reset" value="false" />
   <parameter name="p_pcie_app_clk" value="0" />
   <parameter name="p_pcie_target_performance_preset" value="Maximum" />
-  <parameter name="p_pcie_test_out_width" value="64bits" />
+  <parameter name="p_pcie_test_out_width" value="None" />
   <parameter name="p_pcie_txrx_clock" value="100 MHz" />
   <parameter name="p_pcie_version" value="2.0" />
   <parameter name="p_user_msi_enable" value="0" />
@@ -491,12 +508,26 @@
   <parameter name="slot_number" value="0" />
   <parameter name="slot_power_limit" value="0" />
   <parameter name="slot_power_scale" value="0" />
-  <parameter name="subsystem_device_id" value="51965" />
-  <parameter name="subsystem_vendor_id" value="4466" />
+  <parameter name="subsystem_device_id" value="65280" />
+  <parameter name="subsystem_vendor_id" value="5984" />
   <parameter name="surprise_down_error_support" value="false" />
   <parameter name="under_test" value="0" />
   <parameter name="use_crc_forwarding" value="false" />
-  <parameter name="vendor_id" value="4466" />
+  <parameter name="vendor_id" value="5984" />
+ </module>
+ <module name="pio_0" kind="altera_avalon_pio" version="17.0" enabled="1">
+  <parameter name="bitClearingEdgeCapReg" value="false" />
+  <parameter name="bitModifyingOutReg" value="false" />
+  <parameter name="captureEdge" value="false" />
+  <parameter name="clockRate" value="125000000" />
+  <parameter name="direction" value="Input" />
+  <parameter name="edgeType" value="RISING" />
+  <parameter name="generateIRQ" value="false" />
+  <parameter name="irqType" value="LEVEL" />
+  <parameter name="resetValue" value="0" />
+  <parameter name="simDoTestBenchWiring" value="false" />
+  <parameter name="simDrivenValue" value="0" />
+  <parameter name="width" value="32" />
  </module>
  <module
    name="to_external_bus_bridge_0"
@@ -514,6 +545,15 @@
    version="17.0"
    start="pcie_hard_ip_0.bar0"
    end="pcie_hard_ip_0.cra">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x4000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="17.0"
+   start="pcie_hard_ip_0.bar0"
+   end="pio_0.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0000" />
   <parameter name="defaultConnection" value="false" />
@@ -566,6 +606,11 @@
    kind="clock"
    version="17.0"
    start="pcie_hard_ip_0.pcie_core_clk"
+   end="pio_0.clk" />
+ <connection
+   kind="clock"
+   version="17.0"
+   start="pcie_hard_ip_0.pcie_core_clk"
    end="clock_bridge_pci_core.in_clk" />
  <connection
    kind="interrupt"
@@ -584,6 +629,11 @@
    version="17.0"
    start="clk_25.clk_reset"
    end="to_external_bus_bridge_0.reset" />
+ <connection
+   kind="reset"
+   version="17.0"
+   start="clk_25.clk_reset"
+   end="pio_0.reset" />
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
  <interconnectRequirement for="$system" name="qsys_mm.enableEccProtection" value="FALSE" />
  <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="FALSE" />

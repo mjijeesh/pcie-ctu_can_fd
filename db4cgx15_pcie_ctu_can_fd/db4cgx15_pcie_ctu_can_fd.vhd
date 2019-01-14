@@ -101,6 +101,8 @@ architecture ppl_type of db4cgx15_pcie_ctu_can_fd is
 			external_bus_interface_write_data  : out std_logic_vector(31 downto 0);                    -- write_data
 			external_bus_interface_read_data   : in  std_logic_vector(31 downto 0) := (others => 'X'); -- read_data
 
+			ctucan_id_word_export              : in  std_logic_vector(31 downto 0)  := (others => 'X'); -- export
+
 			pcie_hard_ip_0_clocks_sim_clk250_export                 : out std_logic;                                        -- clk250_export
 			pcie_hard_ip_0_clocks_sim_clk500_export                 : out std_logic;                                        -- clk500_export
 			pcie_hard_ip_0_clocks_sim_clk125_export                 : out std_logic;                                        -- clk125_export
@@ -122,7 +124,7 @@ architecture ppl_type of db4cgx15_pcie_ctu_can_fd is
 			pcie_hard_ip_0_powerdown_pll_powerdown                  : in  std_logic                     := 'X';             -- pll_powerdown
 			pcie_hard_ip_0_powerdown_gxb_powerdown                  : in  std_logic                     := 'X';             -- gxb_powerdown
 			pcie_hard_ip_0_test_in_test_in                          : in  std_logic_vector(39 downto 0) := (others => 'X'); -- test_in
-			pcie_hard_ip_0_test_out_test_out                        : out std_logic_vector(8 downto 0);                     -- test_out
+			--pcie_hard_ip_0_test_out_test_out                        : out std_logic_vector(8 downto 0);                     -- test_out
 
          clk_50_clk                                              : out std_logic;
          clk_100_clk                                             : out std_logic;
@@ -163,6 +165,8 @@ architecture ppl_type of db4cgx15_pcie_ctu_can_fd is
    signal bus_data_rd      : std_logic_vector(31 downto 0);
    signal bus_data_wr      : std_logic_vector(31 downto 0);
 
+	signal ctucan_id_data   : std_logic_vector(31 downto 0);
+
    signal can_tx_combined  : std_logic;
    signal can_tx_vec       : std_logic_vector(can_fd_instances_number - 1 downto 0);
    signal can_rx_vec       : std_logic_vector(can_fd_instances_number - 1 downto 0);
@@ -177,6 +181,8 @@ architecture ppl_type of db4cgx15_pcie_ctu_can_fd is
 begin
 -- {ALTERA_INSTANTIATION_BEGIN} DO NOT REMOVE THIS LINE!
 -- {ALTERA_INSTANTIATION_END} DO NOT REMOVE THIS LINE!
+
+   ctucan_id_data <= x"C000000" & std_logic_vector(to_unsigned(can_fd_instances_number, 4));
 
 	pcie_core_inst : component pcie_core
 		port map (
@@ -201,6 +207,8 @@ begin
 			external_bus_interface_rw          => bus_rw ,       -- .rw
 			external_bus_interface_write_data  => bus_data_wr,   -- .write_data
 			external_bus_interface_read_data   => bus_data_rd,  -- .read_data
+
+			ctucan_id_word_export              => ctucan_id_data,
 
 			clk_50_clk                         => clk_50,
          clk_100_clk                        => clk_sys,
