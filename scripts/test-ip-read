@@ -3,8 +3,11 @@
 echo 1 > /sys/bus/pci/rescan
 pci_dev="$(lspci -n -d 1172: | sed -e 's/\([0-9:]\+\) .*$/\1/')"
 if [ -z "$pci_dev" ] ; then
-  echo "PCI device not found"
-  exit 1
+  pci_dev="$(lspci -n -d 1760:ff00 | sed -e 's/\([0-9:]\+\) .*$/\1/')"
+  if [ -z "$pci_dev" ] ; then
+    echo "PCI device not found"
+    exit 1
+  fi
 fi
 echo "pci_dev=$pci_dev"
 pci_dev_dir="$(find /sys/devices/ -name "*$pci_dev" | sed -n -e "s/\(\/sys\/devices\/pci.*\/[0:]*$pci_dev\)/\1/p" )"
