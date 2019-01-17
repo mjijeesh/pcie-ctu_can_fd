@@ -1,1 +1,1 @@
-find ../modules/ctu_can_fd/src -name '*.vhd' | sed -e 's/^\(.\+\)$/set_global_assignment -name VHDL_FILE \1/'
+find ../modules/ctu_can_fd/src -name '*.vhd' | sort | sed -e 's/^\(.\+\)$/set_global_assignment -name VHDL_FILE \1/'
