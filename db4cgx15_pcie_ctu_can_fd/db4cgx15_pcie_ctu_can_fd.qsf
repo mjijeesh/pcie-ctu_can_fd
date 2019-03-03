@@ -167,8 +167,10 @@ set_global_assignment -name QIP_FILE altgx_reconfig.qip
 # -------------------------------------------------------------------------- #
 ### CTU CAN FD core sources list - begin ###
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/apb/apb_ifc.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/bus_sampling/bit_error_detector.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/bus_sampling/bus_sampling.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/bus_sampling/data_edge_detector.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/bus_sampling/sample_mux.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/bus_sampling/trv_delay_meas.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/bus_sampling/tx_data_cache.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_core/bit_destuffing/bit_destuffing.vhd
@@ -184,6 +186,7 @@ set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_core/protoco
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_top_apb.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/can_top_level.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/common/dff_arst.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/common/dlc_decoder.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/common/endian_swapper.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/common/endian_swap.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/common/inf_ram_wrapper.vhd
