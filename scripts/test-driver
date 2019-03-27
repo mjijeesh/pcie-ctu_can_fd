@@ -1,0 +1,21 @@
+#!/bin/sh
+
+SCR_DIR="$(cd "$(dirname "$0")" ; pwd)"
+
+insmod "$SCR_DIR/../modules/ctu_can_fd/driver/linux/ctucanfd.ko" "$@"
+
+for ifc in /sys/class/net/can* ; do
+  if [ -e  $ifc/device/vendor ] ; then
+     if ! grep -q 0x1760 $ifc/device/vendor ; then
+       continue;
+     fi
+  fi
+  if [ -e  $ifc/device/device ] ; then
+     if ! grep -q 0xff00 $ifc/device/device ; then
+       continue;
+     fi
+  fi
+  ifc=$(basename $ifc)
+  /bin/ip link set $ifc type can bitrate 1000000 dbitrate 10000000 fd on
+  /bin/ip link set $ifc up
+done
