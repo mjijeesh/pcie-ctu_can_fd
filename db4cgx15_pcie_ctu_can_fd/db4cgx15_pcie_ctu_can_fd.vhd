@@ -146,7 +146,7 @@ architecture ppl_type of db4cgx15_pcie_ctu_can_fd is
 
    signal reg_data_in      : std_logic_vector(31 downto 0);
    signal reg_data_out     : reg_data_out_type;
-   signal reg_addr         : std_logic_vector(COMP_TYPE_ADRESS_HIGHER downto 0);
+   signal reg_addr         : std_logic_vector(ID_ADRESS_HIGHER downto 0);
    signal reg_be           : std_logic_vector(3 downto 0);
    signal reg_rden         : std_logic;
    signal reg_wren         : std_logic;
@@ -283,9 +283,6 @@ begin
 
     reg_rden <= bus_en and bus_rw and not bus_ack;
     reg_wren <= bus_en and not bus_rw and not bus_ack;
-
-    reg_addr(COMP_TYPE_ADRESS_HIGHER downto COMP_TYPE_ADRESS_LOWER) <=
-        CAN_COMPONENT_TYPE;
 
     reg_addr(ID_ADRESS_HIGHER downto ID_ADRESS_LOWER) <=
         std_logic_vector(to_unsigned(1, 4));

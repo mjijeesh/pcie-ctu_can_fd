@@ -220,7 +220,14 @@ set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/memory_bus.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/generated/memory_reg.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/memory_registers/memory_registers.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/prescaler/bit_time_cfg_capture.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/prescaler/bit_time_counters.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/prescaler/bit_time_fsm.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/prescaler/prescaler.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/prescaler/resynchronisation.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/prescaler/segment_end_detector.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/prescaler/synchronisation_checker.vhd
+set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/prescaler/trigger_generator.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/rx_buffer/rx_buffer_fsm.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/rx_buffer/rx_buffer_pointers.vhd
 set_global_assignment -name VHDL_FILE ../modules/ctu_can_fd/src/rx_buffer/rx_buffer.vhd
